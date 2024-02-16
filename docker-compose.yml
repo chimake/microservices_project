@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  users:
+    build:
+      context: ./users_microservice
+      dockerfile: Dockerfile
+    container_name: users-service
+    ports:
+      - "8000:80"
+    environment:
+      - LOG_PATH=/var/log/users.log
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - ./users_microservice/storage/logs:/var/log
+
+  notifications:
+    build:
+      context: ./notifications_microservice
+      dockerfile: Dockerfile
+    container_name: notifications-service
+    ports:
+      - "8001:80"
+    environment:
+      - LOG_PATH=/var/log/notifications.log
+    volumes:
+      - ./notifications_microservice/storage/logs:/var/log
